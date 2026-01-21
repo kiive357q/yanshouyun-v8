@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Match the path structure used in App.jsx: projects/{projectId}/{timeCode}/{filename}
+    match /projects/{projectId}/{allPaths=**} {
+      // Allow read/write if authenticated. 
+      // For stricter security, we could verify the uploader matches the auth.uid, 
+      // but Storage rules don't easily access file metadata before upload in the same way Firestore does.
+      // We rely on the random filename generation and authenticated access for V8.
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
